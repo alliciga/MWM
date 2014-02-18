@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  maintcycle: 1
+  fuel: 1.5
+  capacity: 1.5
+  name: MyString
+
+two:
+  maintcycle: 1
+  fuel: 1.5
+  capacity: 1.5
+  name: MyString

@@ -1,0 +1,21 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  nextcheckdate: 2014-02-11
+  lastmaintdate: 2014-02-11
+  videophone: MyString
+  gpsphone: MyString
+  vehiclenum: MyString
+  vehicletype_id: 1
+  driver_id: 1
+  worker_id: 1
+
+two:
+  nextcheckdate: 2014-02-11
+  lastmaintdate: 2014-02-11
+  videophone: MyString
+  gpsphone: MyString
+  vehiclenum: MyString
+  vehicletype_id: 1
+  driver_id: 1
+  worker_id: 1

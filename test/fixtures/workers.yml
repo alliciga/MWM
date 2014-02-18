@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  lastcheckdate: 2014-02-11
+  phone: MyString
+  type: 
+  certid: MyString
+  name: MyString
+
+two:
+  lastcheckdate: 2014-02-11
+  phone: MyString
+  type: 
+  certid: MyString
+  name: MyString
