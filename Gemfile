@@ -5,6 +5,7 @@ gem 'rails', '3.2.16'
 gem 'therubyracer'
 
 gem 'activeadmin'
+gem 'cancan'
 gem "meta_search", '>=1.1.0.pre'
 
 # Bundle edge Rails instead:

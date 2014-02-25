@@ -63,7 +63,7 @@ ActiveAdmin.setup do |config|
   # method in a before filter of all controller actions to
   # ensure that there is a user with proper rights. You can use
   # CanCanAdapter or make your own. Please refer to documentation.
-  # config.authorization_adapter = ActiveAdmin::CanCanAdapter
+  config.authorization_adapter = ActiveAdmin::CanCanAdapter
 
   # You can customize your CanCan Ability class name here.
   # config.cancan_ability_class = "Ability"
@@ -131,7 +131,7 @@ ActiveAdmin.setup do |config|
   #
   # Enable and disable Batch Actions
   #
-  config.batch_actions = true
+  config.batch_actions = false
 
 
   # == Controller Filters
@@ -211,13 +211,17 @@ ActiveAdmin.setup do |config|
   #
   #   end
 
+  config.namespace :admin do |admin|
+    admin.download_links = [:pdf]
+  end
+
 
   # == Pagination
   #
   # Pagination is enabled by default for all resources.
   # You can control the default per page count for all resources here.
   #
-  config.default_per_page = 20
+  config.default_per_page = 16
 
 
   # == Filters
