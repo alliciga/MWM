@@ -212,7 +212,7 @@ ActiveAdmin.setup do |config|
   #   end
 
   config.namespace :admin do |admin|
-    admin.download_links = [:pdf]
+    admin.download_links = false
   end
 
 

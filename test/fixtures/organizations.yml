@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  name: MyString
+  lon: 1.5
+  lat: 1.5
+  legalperson: MyString
+  phone: MyString
+  contacts: MyString
+  contactsphone: MyString
+  weight: 1.5
+  vehicle_id: 
+
+two:
+  name: MyString
+  lon: 1.5
+  lat: 1.5
+  legalperson: MyString
+  phone: MyString
+  contacts: MyString
+  contactsphone: MyString
+  weight: 1.5
+  vehicle_id: 

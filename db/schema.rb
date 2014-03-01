@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140211092630) do
+ActiveRecord::Schema.define(:version => 20140301184341) do
 
   create_table "active_admin_comments", :force => true do |t|
     t.string   "namespace"
@@ -56,12 +56,65 @@ ActiveRecord::Schema.define(:version => 20140211092630) do
     t.datetime "updated_at",    :null => false
   end
 
+  create_table "historyrecord", :id => false, :force => true do |t|
+    t.integer  "yljgid",                    :null => false
+    t.string   "vehiclenum", :limit => 100, :null => false
+    t.string   "sim",        :limit => 20
+    t.string   "yljgname",   :limit => 200
+    t.datetime "starttime",                 :null => false
+    t.datetime "endtime"
+  end
+
+  create_table "layer", :id => false, :force => true do |t|
+    t.integer "topology_id",                                  :null => false
+    t.integer "layer_id",                                     :null => false
+    t.string  "schema_name",    :limit => nil,                :null => false
+    t.string  "table_name",     :limit => nil,                :null => false
+    t.string  "feature_column", :limit => nil,                :null => false
+    t.integer "feature_type",                                 :null => false
+    t.integer "level",                         :default => 0, :null => false
+    t.integer "child_id"
+  end
+
+  add_index "layer", ["schema_name", "table_name", "feature_column"], :name => "layer_schema_name_table_name_feature_column_key", :unique => true
+
+  create_table "organizations", :force => true do |t|
+    t.string   "name"
+    t.float    "lon"
+    t.float    "lat"
+    t.string   "legalperson"
+    t.string   "phone"
+    t.string   "contacts"
+    t.string   "contactsphone"
+    t.float    "weight"
+    t.integer  "vehicle_id"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
+  create_table "spatial_ref_sys", :id => false, :force => true do |t|
+    t.integer "srid",                      :null => false
+    t.string  "auth_name", :limit => 256
+    t.integer "auth_srid"
+    t.string  "srtext",    :limit => 2048
+    t.string  "proj4text", :limit => 2048
+  end
+
+  create_table "topology", :force => true do |t|
+    t.string  "name",      :limit => nil,                    :null => false
+    t.integer "srid",                                        :null => false
+    t.float   "precision",                                   :null => false
+    t.boolean "hasz",                     :default => false, :null => false
+  end
+
+  add_index "topology", ["name"], :name => "topology_name_key", :unique => true
+
   create_table "vehicles", :force => true do |t|
     t.date     "nextcheckdate"
     t.date     "lastmaintdate"
     t.string   "videophone"
     t.string   "gpsphone"
-    t.string   "vehiclenum"
+    t.string   "name"
     t.integer  "vehicletype_id"
     t.integer  "driver_id"
     t.integer  "worker_id"
@@ -88,19 +141,39 @@ ActiveRecord::Schema.define(:version => 20140211092630) do
     t.datetime "updated_at",    :null => false
   end
 
-  create_table "yljgs", :id => false, :force => true do |t|
-    t.string "gid"
-    t.string "name"
-    t.string "the_geom"
-    t.string "id"
-    t.string "flag"
-    t.string "LegalPerson"
-    t.string "Address"
-    t.string "Phone"
-    t.string "Contacts"
-    t.string "ContactsPhone"
-    t.string "Weight"
-    t.string "VehicleId"
+  create_table "yljg", :primary_key => "gid", :force => true do |t|
+    t.string  "name",          :limit => 254
+    t.integer "the_geom",      :limit => 0
+    t.integer "id",                           :null => false
+    t.integer "flag"
+    t.string  "legalperson",   :limit => 16
+    t.string  "address",       :limit => 254
+    t.string  "phone",         :limit => 16
+    t.string  "contacts",      :limit => 16
+    t.string  "contactsphone", :limit => 16
+    t.decimal "weight"
+    t.integer "vehicleid"
+  end
+
+  create_table "yljg_dontremove", :id => false, :force => true do |t|
+    t.integer "gid",                          :null => false
+    t.string  "name",          :limit => 254
+    t.integer "the_geom",      :limit => 0
+    t.integer "id",                           :null => false
+    t.integer "flag"
+    t.string  "legalperson",   :limit => 16
+    t.string  "address",       :limit => 254
+    t.string  "phone",         :limit => 16
+    t.string  "contacts",      :limit => 16
+    t.string  "contactsphone", :limit => 16
+    t.decimal "weight"
+    t.integer "vehicleid"
+  end
+
+  create_table "yljg_real", :id => false, :force => true do |t|
+    t.integer  "yljgid",     :null => false
+    t.integer  "status"
+    t.datetime "updatetime"
   end
 
 end

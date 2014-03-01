@@ -1,10 +1,10 @@
 ActiveAdmin.register AdminUser do
   menu :label => "管理员", :parent => "系统管理", :priority => 8
   index do
-    column :email
-    column :current_sign_in_at
-    column :last_sign_in_at
-    column :sign_in_count
+    column "账户",:email
+    column "本次登录时间",:current_sign_in_at
+    column "上次登录时间",:last_sign_in_at
+    column "登录次数",:sign_in_count
     default_actions
   end
 

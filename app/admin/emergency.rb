@@ -1,5 +1,5 @@
 ActiveAdmin.register_page "EmergencyPlan" do
-  menu :label => "应急预案", :parent => "应急管理"
+  menu :label => "应急预案", :priority => 4
 
   content do
     para "预案."
