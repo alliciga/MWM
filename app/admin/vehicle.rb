@@ -1,8 +1,8 @@
 ActiveAdmin.register Vehicle do
   menu :label => "车辆信息", :parent => "清运车辆", :priority => 7
 
-  index do
-    column "车牌号码",:vehiclenum
+  index :title => "清运车辆资料" do
+    column "车牌号码",:name
     column "车辆类型" do |vehicle|
       auto_link vehicle.vehicletype
     end
@@ -22,6 +22,6 @@ ActiveAdmin.register Vehicle do
   filter :vehicletype, :label=>"车辆类型"
 
   action_item :only => :show, :if => proc{current_admin_user="admin@mwm.com"} do
-    link_to('新增清运车', '/admin/vehicle/new')
+    link_to('新增清运车', '/admin/vehicles/new')
   end
 end

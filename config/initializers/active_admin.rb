@@ -1,3 +1,10 @@
+class MyFooter < ActiveAdmin::Component
+  def build
+    super(id: "footer")
+    para "Copyright #{Date.today.year} A.S. Workshop"
+  end
+end
+
 ActiveAdmin.setup do |config|
 
   # == Site Title
@@ -6,6 +13,8 @@ ActiveAdmin.setup do |config|
   # for each of the active admin pages.
   #
   config.site_title = "太原市医废处置智能管理云平台"
+
+  config.view_factory.footer = MyFooter
 
   # Set the link url for the title. For example, to take
   # users to your main site. Defaults to no link.
@@ -233,3 +242,4 @@ ActiveAdmin.setup do |config|
   # config.filters = true
 
 end
+
