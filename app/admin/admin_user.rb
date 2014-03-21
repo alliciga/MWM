@@ -11,11 +11,14 @@ ActiveAdmin.register AdminUser do
   filter :email
 
   form do |f|
-    f.inputs "Admin Details" do
-      f.input :email
-      f.input :password
-      f.input :password_confirmation
+    f.inputs "账户信息" do
+      f.input :email, :label => "账户名称（Email格式）"
+      f.input :password, :label => "密码"
+      f.input :password_confirmation, :label => "密码确认"
     end
-    f.actions
+    f.actions do
+      f.action :submit, :label => "确认"
+      f.action :cancel, :label => "取消"
+    end
   end
 end
