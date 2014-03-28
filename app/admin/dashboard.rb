@@ -1,7 +1,6 @@
 ActiveAdmin.register_page "Dashboard" do
 
   menu :label => "综合调度", :priority => 1
-  #menu :priority => 1, :label => proc{ I18n.t("active_admin.dashboard") }
 
   content :title => proc{ I18n.t("active_admin.dashboard") } do
     div :class => "blank_slate_container" do
@@ -12,6 +11,6 @@ ActiveAdmin.register_page "Dashboard" do
       end
     end
 
-
   end # content
+
 end
