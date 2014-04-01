@@ -1,0 +1,24 @@
+<% year = Time.now.strftime("%Y").to_i %>
+<% month = Time.now.strftime("%m").to_i %>
+<% c1 = HistoryRecord.where(["starttime>? and endtime<? and endtime>starttime",Time.mktime(year,month)+28800,Time.mktime(year,month+1)+28800]) %>
+<div>
+  <% Vehicle.find_each do |v| %>
+    <% record1 = c1.where(["vehiclenum=?",v.name]) %>
+    <div class="message_body" id="<%=v.name%>">
+      <h3><%=v.name%> 本月清运详情表</h3>
+      <table border="1" cellspacing="0" cellpadding="0">
+        <thead><tr><th>医疗机构名称</th><th>到达时刻</th><th>清运耗时</th></tr></thead>
+        <tbody>
+        <% record1.find_each do |r| %>
+          <tr>
+            <td> <%= r.yljgname %> </td>
+            <td> <%= r.starttime %> </td>
+            <td> <%= ((r.endtime-r.starttime)/60).to_i.to_s + "分钟" %> </td>
+          </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>
+

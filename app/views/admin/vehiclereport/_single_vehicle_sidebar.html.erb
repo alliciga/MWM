@@ -1,0 +1,21 @@
+<% Vehicle.find_each do |v| %>
+  <span><a href="#" class="message_head_sidebar" name="<%=v.name%>"><%=v.name%>--<%=v.driver.name%>,<%=v.worker.name%></a></span><br><br>
+<% end %>
+
+<script type="text/javascript">
+  $(".message_body").hide();
+  $(".message_head").click(function(){
+	$(".message_body").slideUp(400)
+	$("#"+$(this).attr("name")).slideToggle(400)
+	return false;
+  });
+  $(".message_head_sidebar").click(function(){
+	$(".message_body").slideUp(400)
+	$("#"+$(this).attr("name")).slideToggle(400)
+	return false;
+  });
+  $(".collapse_all_message").click(function(){
+	$(".message_body").slideUp(400)
+	return false;
+  });
+</script>

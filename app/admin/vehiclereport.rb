@@ -5,30 +5,25 @@ ActiveAdmin.register_page "VehicleReport" do
 
   year = Time.now.strftime("%Y").to_i
   month = Time.now.strftime("%m").to_i
-  c1 = HistoryRecord.where(["starttime>? and endtime<? and endtime>starttime",Time.mktime(year,month),Time.mktime(year,month+1)])
+  c1 = HistoryRecord.where(["starttime>? and endtime<? and endtime>starttime",Time.mktime(year,month)+28800,Time.mktime(year,month+1)+28800])
 
   content :title => '车辆清运统计报表' do
-    div :class => "blank_slate_container" do
-      span :class => "blank_slate" do
-        span "总体合规运营率，月总行驶里程数，清运车当月绩效评分排名"
-        h2 "现在是 " + year.to_s + " 年 " + month.to_s + " 月"
-        h2 "目前共承担 " + Organization.count.to_s + " 个医疗机构的医废清运工作"
-        h2 "本月累计清运 " + c1.count.to_s + " 车*次"
+    panel "清运工作统计" do
+        h2 "本单位目前拥有清运车 " + Vehicle.count.to_s + " 辆。"
+        h2 year.to_s + " 年 " + month.to_s + " 月累计完成清运 " + c1.count.to_s + " 车•次，累计清运时间 " +  " 分钟。"
+    end
+
+    columns do
+      column :span=>1 do
+        span "按照清运车次排序"
+      end
+      column :span=>2 do
+        render "single_vehicle"
       end
     end
 
-    div :class => "blank_slate_container" do
-      span :class => "blank_slate" do
-        Vehicle.find_each do |v|
-          record1 = c1.where(["vehiclenum=?",v.name])
-          h4 record1.first.vehiclenum
-          table_for record1 do
-            column "车牌号码",:vehiclenum
-            column "医疗机构名称",:yljgname
-            column "清运时间",:starttime
-          end
-        end
-      end
-    end
   end
+
+  sidebar "车辆筛选", :partial=>"single_vehicle_sidebar"
+
 end
