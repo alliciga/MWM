@@ -4,8 +4,11 @@ ActiveAdmin.register Worker do
   action_item :if => proc{current_admin_user="admin@mwm.com"} do
     link_to('新增清运工', '/admin/workers/new')
   end
+  action_item do
+    link_to('返回', '/admin/workers')
+  end
 
-  menu :label => "清运工", :parent => "人员", :priority => 6
+  menu :label => "清运工", :parent => "基本数据管理", :priority => 5
 
   index :title => "清运工资料"  do
     column "姓名",:name
@@ -28,6 +31,17 @@ ActiveAdmin.register Worker do
     f.actions do
       f.action :submit, :label => "确认"
       f.action :cancel, :label => "取消"
+    end
+  end
+
+  show do |w|
+    panel "清运工个人信息" do
+      attributes_table_for worker do
+        row("名称") {w.name}
+        row("身份证号") {w.certid}
+        row("电话号码") {w.phone}
+        row("上次体检日期") {w.lastcheckdate}
+      end
     end
   end
 end

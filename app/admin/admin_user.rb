@@ -1,5 +1,5 @@
 ActiveAdmin.register AdminUser do
-  menu :label => "管理员", :parent => "系统管理", :priority => 8
+  menu :label => "管理员", :parent=> "基本数据管理", :priority => 5
   index do
     column "账户",:email
     column "本次登录时间",:current_sign_in_at

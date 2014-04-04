@@ -1,7 +1,7 @@
 require "historyrecord.rb"
 
 ActiveAdmin.register_page "OrganizationReport" do
-  menu :label => "医疗机构", :parent => "月统计报表", :priority => 2
+  menu :label => "医疗机构", :parent => "统计报表", :priority => 3
 
   year = Time.now.strftime("%Y").to_i
   month = Time.now.strftime("%m").to_i

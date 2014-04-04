@@ -5,8 +5,7 @@
 <script type="text/javascript">
   $(".message_body").hide();
   $(".message_head").click(function(){
-	$(".message_body").slideUp(400)
-	$("#"+$(this).attr("name")).slideToggle(400)
+	$("#"+$(this).attr("name")+"org").slideToggle(400)
 	return false;
   });
   $(".message_head_sidebar").click(function(){
