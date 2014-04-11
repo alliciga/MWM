@@ -1,17 +1,40 @@
+require "historyrecord.rb"
+
 ActiveAdmin.register_page "Dashboard" do
 
-  menu :label => "综合调度", :priority => 1
+  menu :label => "实时清运统计", :priority => 1
 
-  content :title => "医废处置综合调度管理" do
-    div :class => "blank_slate_container" do
-      span :class => "blank_slate" do
-        h2 "本单位目前共承担 " + Organization.count.to_s + " 个医疗机构的医废清运工作，由 " + Vehicle.count.to_s + " 辆清运车，" + Worker.count.to_s + " 位清运工完成。"
-        span "预警提示：车辆违章、车辆审验、周期性保养维修、人员体检、培训等。"
-        span "指挥调度：直接IP语音拨号至：车辆、岗位、政府主管部门、医疗机构等。"
-        span "信息发送：短信通知、手机应用通知"
-      end
+  year = Time.now.strftime("%Y").to_i
+  month = Time.now.strftime("%m").to_i
+  day = Time.now.strftime("%d").to_i
+
+  #累计清运时间
+  timesum = 0.0
+
+  #本月清运有效记录
+  c1 = HistoryRecord.where(["starttime>? and endtime<? and endtime>starttime",Time.mktime(year,month)+28800,Time.mktime(year,month+1)+28800])
+  #清运时间计算
+  c1.find_each do |r|
+    timesum = timesum + (r.endtime-r.starttime)
+  end
+
+
+  content :title => "医废处置实时清运统计" do
+    panel "清运工作统计" do
+      h2 "本单位目前共承担" + Organization.count.to_s + "个医疗机构的清运工作，拥有清运车" + Vehicle.count.to_s + "辆，清运工" + Worker.count.to_s + "名"
+      h2 year.to_s + "年" + month.to_s + "月累计清运" + c1.count.to_s + "车*次，累计清运时间" + (timesum/60).to_i.to_s + "分钟。"
     end
 
-  end # content
+    columns do
+      column :span=>2 do
+        span "预警提示：近48小时未清运的医疗机构"
+        render "missing_organizations_alert"
+      end
+      column :span=>3 do
+        render "single_vehicle"
+      end
+    end
+  end #content
 
-end
+  sidebar "车辆筛选", :partial=>"single_vehicle_sidebar"
+end #page

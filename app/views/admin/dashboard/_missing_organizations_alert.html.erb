@@ -1,0 +1,26 @@
+<% r1 = HistoryRecord.select("vehiclenum,yljgname,max(starttime) t").group("yljgid,yljgname") %>
+<% r1 = HistoryRecord.find_by_sql("select vehiclenum,yljgname,t from (select vehiclenum,yljgname,max(starttime) t from historyrecord group by vehiclenum,yljgid,yljgname) z where z.t<'" + (Time.now-28800*6).to_s + "' order by vehiclenum") %>
+
+<p class="alarm">共<%= r1.count.to_s %>家未按时清运</p><br>
+<table>
+  <thead>
+    <tr><th>机构名称</th><th>负责车辆</th><th>上次清运</th>
+  </thead>
+<% color1="#F0FFF0" %>
+<% color2="#FFECEC" %>
+<% color=color1 %>
+<% cv=nil%>
+
+<% r1.each do |a| %>
+<% if cv!=a.vehiclenum then %>
+<% if color==color1 then color=color2 else color=color1 %>
+<% end %>
+<% end %>
+  <tr bgcolor="<%=color%>">
+    <td><%= a.yljgname %></td>
+    <td><%= a.vehiclenum %></td>
+    <td><%= a.t %></td>
+  </tr>
+<% cv=a.vehiclenum %>
+<% end %>
+</table>
