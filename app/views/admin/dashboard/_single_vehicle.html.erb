@@ -1,11 +1,45 @@
 <% year = Time.now.strftime("%Y").to_i %>
 <% month = Time.now.strftime("%m").to_i %>
 <% c1 = HistoryRecord.where(["starttime>? and endtime<? and endtime>starttime",Time.mktime(year,month)+28800,Time.mktime(year,month+1)+28800]) %>
+
+<% r1 = HistoryRecord.select("vehiclenum,yljgname,max(starttime) t").group("yljgid,yljgname") %>
+<% r1 = HistoryRecord.find_by_sql("select vehiclenum,yljgname,t from (select vehiclenum,yljgname,max(starttime) t from historyrecord group by vehiclenum,yljgid,yljgname) z where z.t<'" + (Time.now-28800*6).to_s + "' order by vehiclenum") %>
+
+<% data_alert=Array.new() %>
+<% data_time=Array.new() %>
+
+<% Vehicle.find_each do |v| %>
+  <% count =0 %>
+  <% time =0 %>
+  <% r1.each do |x| %>
+       <% if x.vehiclenum==v.name %>
+       <%  count=count+1 %>
+       <% end %>
+  <% end %>
+  <% if count>0 %>
+  <%   data_alert.insert(-1,[v.name,count]) %>
+  <%   count=0  %>
+  <%  end %>
+  <% t1 = c1.where(["vehiclenum=?",v.name]) %>
+  <% t1.find_each do |t| %>
+  <%   time=time+(t.endtime-t.starttime)/60 %>
+  <% end %>
+  <%   data_time.insert(-1,[v.name,time.round(1)]) %>
+  <%   time=0  %>
+<% end %>
+
+<%= javascript_include_tag "Highcharts-4.0.1/js/highcharts.js", "chartkick" %>
 <div>
+  
+  <div class="message_body" id="analysis">
+    <center><h3>图表分析：<%=year%>年<%=month%>月医废清运综合分析</h3></center>
+    <%= pie_chart data_alert %>
+    <%= bar_chart data_time %>
+  </div>
   <% Vehicle.find_each do |v| %>
-    <% record1 = c1.where(["vehiclenum=?",v.name]) %>
+    <% record1 = HistoryRecord.find_by_sql("select yljgname,vehiclenum,starttime,endtime from historyrecord where vehiclenum='" + v.name + "' and endtime>starttime and starttime>'" + (Time.mktime(year,month)+28800).to_s + "' and endtime <'" + (Time.mktime(year,month+1)+28800).to_s + "' order by yljgname,starttime") %>
     <div class="message_body" id="<%=v.name%>">
-      <center><h2><%=v.name%> 本月清运详情表</h3></center>
+      <center><h2><%=v.name%> <%=year%>年<%=month%>月清运详情表</h3></center>
       <h2><a href="#" class="message_head" name="<%=v.name%>">负责清运的医疗机构：</a></h2>
       <div class="message_body" id="<%=v.name%>org">
         <% o1=Organization.where(["vehicle_id=?",v.id]) %>
@@ -16,11 +50,11 @@
       <table border="1" cellspacing="0" cellpadding="0">
         <thead><tr><th>医疗机构名称</th><th>到达时刻</th><th>清运耗时</th></tr></thead>
         <tbody>
-        <% record1.find_each do |r| %>
+        <% record1.each do |r| %>
           <tr>
             <td> <%= r.yljgname %> </td>
             <td> <%= r.starttime %> </td>
-            <td> <%= ((r.endtime-r.starttime)/60).to_i.to_s + "分钟" %> </td>
+            <td> <%= ((r.endtime-r.starttime)/60).round(1).to_s + "分钟" %> </td>
           </tr>
         <% end %>
         </tbody>

@@ -1,9 +1,11 @@
+<span><a href="#" class="message_head_sidebar" name="analysis">医废清运综合图表分析</a></span><br><br>
 <% Vehicle.find_each do |v| %>
   <span><a href="#" class="message_head_sidebar" name="<%=v.name%>"><%=v.name%> [<%=v.driver.name%>,<%=v.worker.name%>]</a></span><br><br>
 <% end %>
 
 <script type="text/javascript">
   $(".message_body").hide();
+  $("#analysis").slideToggle(400)
   $(".message_head").click(function(){
 	$("#"+$(this).attr("name")+"org").slideToggle(400)
 	return false;
