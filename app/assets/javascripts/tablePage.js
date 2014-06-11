@@ -2,11 +2,12 @@ function testjs() {
   alert("testjs run ok.");
 };
 
-function Page(iAbsolute,sTableId,sTBodyId,page) 
+function Page(iAbsolute,sTableId,sTBodyId,sDivFood,page) 
 { 
   this.absolute = iAbsolute; //每页最大记录数 
   this.tableId = sTableId; 
   this.tBodyId = sTBodyId; 
+  this.divFoodvv = sDivFood; 
   this.rowCount = 0;//记录数 
   this.pageCount = 0;//页数 
   this.pageIndex = 0;//页索引 
@@ -104,9 +105,9 @@ Page.prototype.__updateTableRows__ = function(){
   this.__dataRows__ = tempRows; 
   this.__oTBody__ = newTBody; 
 //页脚显示分 
-  var divFood = document.getElementById("divFood");//分页工具栏 
+  var divFood = document.getElementById(this.divFoodvv);//分页工具栏 
   divFood.innerHTML=""; 
-  var rightBar = document.createElement("divFood"); 
+  var rightBar = document.createElement(this.divFoodvv); 
   rightBar.setAttribute("display",""); 
   rightBar.setAttribute("float","left"); 
   rightBar.innerHTML="第"+(this.pageIndex+1)+"页/共"+this.pageCount+"页"; 

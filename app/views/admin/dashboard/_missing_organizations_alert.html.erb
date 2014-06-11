@@ -2,7 +2,7 @@
   <% r1 = HistoryRecord.select("vehiclenum,yljgname,max(starttime) t").group("yljgid,yljgname") %>
   <% r1 = HistoryRecord.find_by_sql("select vehiclenum,yljgname,t from (select vehiclenum,yljgname,max(starttime) t from historyrecord group by vehiclenum,yljgid,yljgname) z where z.t<'" + (Time.now-28800*6).to_s + "' order by vehiclenum") %>
 
-  <p class="alarm">目前共 <%= r1.count.to_s %> 家医疗机构未按规定清运</p>
+  <center><p class="alarm">目前共 <%= r1.count.to_s %> 家医疗机构未按规定清运</p></center>
   <table id="missing">
     <thead>
       <tr><th>机构名称</th><th>负责车辆</th><th>上次清运</th>
@@ -30,5 +30,5 @@
     <a href="#" onclick="page01.firstPage();">首 页</a>/<a href="#" onclick="page01.nextPage();">下一页</a>/<a href="#" onclick="page01.prePage();">上一页</a>/<a href="#" onclick="page01.lastPage();">末 页</a><span id="divFood"></span>/第 
     <input id="pageno" value="1" style="width:20px"/>页/<a href="#" onclick="page01.aimPage();">跳转</a>
   </div> 
-  <script>var page01 = new Page(16,'missing','group01')</script>
+  <script>var page01 = new Page(16,'missing','group01','divFood')</script>
 </div>
