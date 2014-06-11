@@ -20,7 +20,7 @@ ActiveAdmin.register_page "Dashboard" do
 
   content :title => "医废处置实时清运统计" do
     panel "清运工作统计" do
-      h3 "本单位目前共承担" + Organization.count.to_s + "个医疗机构的清运工作，拥有清运车" + Vehicle.count.to_s + "辆，清运工" + Worker.count.to_s + "名"
+      h3 "目前共承担" + Organization.count.to_s + "个医疗机构的清运工作，拥有清运车" + Vehicle.count.to_s + "辆，清运工" + Worker.count.to_s + "名"
       h3 year.to_s + "年" + month.to_s + "月累计清运" + c1.count.to_s + "车*次，累计清运时间" + (timesum/60).to_i.to_s + "分钟。"
     end
 

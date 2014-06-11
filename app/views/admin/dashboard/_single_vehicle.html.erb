@@ -1,7 +1,15 @@
 <% year = Time.now.strftime("%Y").to_i %>
 <% month = Time.now.strftime("%m").to_i %>
-<% c1 = HistoryRecord.where(["starttime>? and endtime<? and endtime>starttime",Time.mktime(year,month)+28800,Time.mktime(year,month+1)+28800]) %>
+<% yearV = params[:sYear] %>
+<% monthV = params[:sMonth] %>
+<% if yearV == nil %>
+<% yearV = year %>
+<% end %>
+<% if monthV == nil %>
+<% monthV = month %>
+<% end %>
 
+<% c1 = HistoryRecord.where(["starttime>? and endtime<? and endtime>starttime",Time.mktime(yearV,monthV)+28800,Time.mktime(yearV,monthV.to_i+1)+28800]) %>
 <% r1 = HistoryRecord.select("vehiclenum,yljgname,max(starttime) t").group("yljgid,yljgname") %>
 <% r1 = HistoryRecord.find_by_sql("select vehiclenum,yljgname,t from (select vehiclenum,yljgname,max(starttime) t from historyrecord group by vehiclenum,yljgid,yljgname) z where z.t<'" + (Time.now-28800*6).to_s + "' order by vehiclenum") %>
 
@@ -35,16 +43,24 @@
 
 <%= javascript_include_tag "Highcharts-4.0.1/js/highcharts.js", "chartkick" %>
 <div>
-  
+  <div>
+    <% if monthV.to_i==1 %>
+      <a href="/admin/dashboard?sYear=<%=yearV.to_i-1%>&sMonth=12">上个月</a>
+    <% else %>
+      <a href="/admin/dashboard?sYear=<%=yearV%>&sMonth=<%=monthV.to_i-1%>">上个月</a>
+    <% end %>
+    <a href="/admin/dashboard?sYear=<%=year%>&sMonth=<%=month%>">本月</a>
+  </div> 
   <div class="message_body" id="analysis">
-    <center><h3>图表分析：<%=year%>年<%=month%>月医废清运综合分析</h3></center>
+    <center><h3>未按规定时间清运医疗机构数量图表分析</h3></center>
     <%= pie_chart data_alert %>
+    <center><h3><%=yearV%>年<%=monthV%>月医废清运工作量时间分析</h3></center>
     <%= bar_chart data_time %>
   </div>
   <% Vehicle.find_each do |v| %>
-    <% record1 = HistoryRecord.find_by_sql("select yljgname,vehiclenum,starttime,endtime from historyrecord where vehiclenum='" + v.name + "' and endtime>starttime and starttime>'" + (Time.mktime(year,month)+28800).to_s + "' and endtime <'" + (Time.mktime(year,month+1)+28800).to_s + "' order by yljgname,starttime") %>
+    <% record1 = HistoryRecord.find_by_sql("select yljgname,vehiclenum,starttime,endtime from historyrecord where vehiclenum='" + v.name + "' and endtime>starttime and starttime>'" + (Time.mktime(yearV,monthV)+28800).to_s + "' and endtime <'" + (Time.mktime(yearV,monthV.to_i+1)+28800).to_s + "' order by yljgname,starttime") %>
     <div class="message_body" id="<%=v.name%>">
-      <center><h2><%=v.name%> <%=year%>年<%=month%>月清运详情表</h3></center>
+      <center><h2><%=v.name%> <%=yearV%>年<%=monthV%>月清运详情表</h3></center>
       <h2><a href="#" class="message_head" name="<%=v.name%>">负责清运的医疗机构：</a></h2>
       <div class="message_body" id="<%=v.name%>org">
         <% o1=Organization.where(["vehicle_id=?",v.id]) %>
