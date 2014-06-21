@@ -29,7 +29,7 @@ ActiveAdmin.register_page "Dashboard" do
         render "missing_organizations_alert"
       end
       column :span=>3 do
-        render :partial=>'single_vehicle', :locals=>{:m=>month}
+        render :partial=>'single_vehicle'
       end
     end
   end #content

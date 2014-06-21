@@ -10,7 +10,17 @@
 <% end %>
 
 <% c1 = HistoryRecord.where(["starttime>? and endtime<? and endtime>starttime",Time.mktime(yearV,monthV)+28800,Time.mktime(yearV,monthV.to_i+1)+28800]) %>
-<% r1 = HistoryRecord.select("vehiclenum,yljgname,max(starttime) t").group("yljgid,yljgname") %>
+<% r1 = HistoryRecord.select("vehiclenum,yljgname,max(starttime) t").group("yljgid,yljgname,vehiclenum") %>
+  <% b=[] %>
+  <% r1.each do |x| %>
+    <% b << [x.yljgname,x.vehiclenum] %>
+  <% end %>
+  <% r_all=Organization.all %>
+  <% a=[] %><% c=[] %>
+  <% r_all.each do |x| %>
+    <% a << [x.name,x.vehicle.name] %>
+  <% end %>
+  <% c=a-b %>
 <% r1 = HistoryRecord.find_by_sql("select vehiclenum,yljgname,t from (select vehiclenum,yljgname,max(starttime) t from historyrecord group by vehiclenum,yljgid,yljgname) z where z.t<'" + (Time.now-28800*6).to_s + "' order by vehiclenum") %>
 
 <% data_alert=Array.new() %>
@@ -23,6 +33,11 @@
        <% if x.vehiclenum==v.name %>
        <%  count=count+1 %>
        <% end %>
+  <% end %>
+  <% c.each do |x| %>
+    <% if x[1]==v.name %>
+      <% count=count+1 %>
+    <% end %>
   <% end %>
   <% if count>0 %>
   <%   data_alert.insert(-1,[v.name,count]) %>

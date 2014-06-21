@@ -1,8 +1,18 @@
 <div>
-  <% r1 = HistoryRecord.select("vehiclenum,yljgname,max(starttime) t").group("yljgid,yljgname") %>
+  <% r1 = HistoryRecord.select("vehiclenum,yljgname,max(starttime) t").group("yljgid,yljgname,vehiclenum") %>
+  <% b=[] %>
+  <% r1.each do |x| %>
+    <% b << [x.yljgname,x.vehiclenum] %>
+  <% end %>
   <% r1 = HistoryRecord.find_by_sql("select vehiclenum,yljgname,t from (select vehiclenum,yljgname,max(starttime) t from historyrecord group by vehiclenum,yljgid,yljgname) z where z.t<'" + (Time.now-28800*6).to_s + "' order by vehiclenum") %>
+  <% r_all=Organization.all %>
+  <% a=[] %><% c=[] %>
+  <% r_all.each do |x| %>
+    <% a << [x.name,x.vehicle.name] %>
+  <% end %>
+  <% c=a-b %>
 
-  <center><p class="alarm">目前共 <%= r1.count.to_s %> 家医疗机构未按规定清运</p></center>
+  <center><p class="alarm">目前共 <%= (c.count+r1.count).to_s %> 家医疗机构未按规定清运</p></center>
   <table id="missing">
     <thead>
       <tr><th>机构名称</th><th>负责车辆</th><th>上次清运</th>
@@ -16,6 +26,15 @@
     <% r1.each do |a| %>
       <% if cv!=a.vehiclenum then %>
         <% if color==color1 then color=color2 else color=color1 %> <% end %>
+        <% c.each do |x| %>
+          <% if x[1]==a.vehiclenum then %>
+          <tr bgcolor="<%=color%>">
+            <td><%= x[0] %></td>
+            <td><%= x[1] %></td>
+            <td>无记录</td>
+          </tr>
+          <%end%>
+        <% end %>
       <% end %>
       <tr bgcolor="<%=color%>">
         <td><%= a.yljgname %></td>
@@ -23,6 +42,9 @@
         <td><%= a.t %></td>
       </tr>
       <% cv=a.vehiclenum %>
+    <% end %>
+    <% c.each do |a| %>
+      
     <% end %>
     </tbody>
   </table>

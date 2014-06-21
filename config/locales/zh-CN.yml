@@ -1,4 +1,11 @@
 zh-CN:
+  views:
+    pagination:
+      first: 第一页
+      previous: 前一页
+      next: 后一页
+      last: 最后一页
+      truncate: ...
   date:
     abbr_day_names:
     - 日
