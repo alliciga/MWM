@@ -2,12 +2,13 @@ function testjs() {
   alert("testjs run ok.");
 };
 
-function Page(iAbsolute,sTableId,sTBodyId,sDivFood,page) 
+function Page(iAbsolute,sTableId,sTBodyId,sDivFood,sPageNo,page) 
 { 
   this.absolute = iAbsolute; //每页最大记录数 
   this.tableId = sTableId; 
   this.tBodyId = sTBodyId; 
   this.divFoodvv = sDivFood; 
+  this.pageNo = sPageNo; 
   this.rowCount = 0;//记录数 
   this.pageCount = 0;//页数 
   this.pageIndex = 0;//页索引 
@@ -76,7 +77,7 @@ Page.prototype.lastPage = function(){
 页定位方法 
 */ 
 Page.prototype.aimPage = function(){ 
-  var abc = document.getElementById("pageno"); 
+  var abc = document.getElementById(this.pageNo); 
   var iPageIndex = abc.value; 
   var iPageIndex = iPageIndex*1; 
   if(iPageIndex > this.pageCount-1){ 

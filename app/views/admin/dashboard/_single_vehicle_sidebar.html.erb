@@ -1,6 +1,6 @@
-<span><a href="#" class="message_head_sidebar" name="analysis">医废清运综合图表分析</a></span><br><br>
+<span><a href="#" class="message_head_sidebar" style="text-decoration:none" name="analysis">医废清运综合图表分析</a></span><br><br>
 <% Vehicle.find_each do |v| %>
-  <span><a href="#" class="message_head_sidebar" name="<%=v.name%>"><%=v.name%> [<%=v.driver.name%>,<%=v.worker.name%>]</a></span><br><br>
+  <span><a href="#" class="message_head_sidebar" style="text-decoration:none" name="<%=v.name%>"><%=v.name%>  [<%=v.driver.name%>, <%=v.vehicletype.name%>]</a></span><br><br>
 <% end %>
 
 <script type="text/javascript">
