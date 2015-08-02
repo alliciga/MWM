@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0,user-scalable=no" />
+<meta http-equiv="Content-Type" content="charset=utf-8" />
+<script
+	src="http://api.map.baidu.com/api?v=2.0&ak=AHlXvdQ2AcfSy3KAixNEOfOx"
+	type="text/javascript"></script>
+<script src="js/jquery.js"></script>
+<script type="text/javascript"
+	src="http://api.map.baidu.com/library/AreaRestriction/1.2/src/AreaRestriction_min.js"></script>
+	
+<script src="js/utils.js"></script>
+<link rel = "stylesheet" type="text/css" id="css" href="js/utils.css" />
+<style type="text/css">
+body, html {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	font-family: "微软雅黑";
+	font-size: 14px;
+}
+
+#container {
+	height: 100%;
+	width: 80%;
+	position: absolute;
+	top: 4px;
+	left: 4px;
+	bottom: 4px;
+	right: 4px;
+	"
+}
+
+#filterList {
+	height: 100%;
+	width: 20%;
+	position: absolute;
+	top: 4px;
+	left: 80%;
+	bottom: 4px;
+	right: 4px;
+	background-color: #eeeeee;
+}
+
+</style>
+
+<title>百度版车辆清运综合监控</title>
+</head>
+
+<body>
+	<div id="container"></div>
+	<div id="filterList">
+		<center><p>清运车辆列表</p></center>
+		<div id="VehicleList"></div>
+		<a href="#" id="reloadButton" onclick=getHospitals()>重新加载数据</a>
+	</div>
+    <div id="_loading_div">
+		<span class="item-1"></span>
+		<span class="item-2"></span>
+		<span class="item-3"></span>
+		<span class="item-4"></span>
+		<span class="item-5"></span>
+		<span class="item-6"></span>
+		<span class="item-7"></span>
+	</div>
+	<div id="_loadMsg">正在加载,请稍候...</div>
+	<div id="fade" class="black_overlay"></div>
+	<script type="text/javascript">
+            //创建地图实例，缩放比例12-19
+            var map = new BMap.Map("container",{minZoom:12,maxZoom:19});
+            
+            map.enableScrollWheelZoom();//启用滚轮缩放
+            map.addControl(new BMap.MapTypeControl());//添加地图类型控件
+            map.addControl(new BMap.NavigationControl());//添加地图平移缩放控件
+            
+            var point = new BMap.Point(112.553,37.857);//创建中心点坐标
+            map.centerAndZoom(point, 13);//初始化地图，设置中心点和缩放级别
+            map.setCurrentCity("太原");//设置当前城市
+            
+            //设定地图显示范围，如果超出则自动弹回
+            var b = new BMap.Bounds(new BMap.Point(112.360235,37.61752),new BMap.Point(112.770603,38.068212));
+            try {
+                BMapLib.AreaRestriction.setBounds(map,b);
+            } catch (e) {
+                alert(e);
+            }
+        
+        //定义全局变量，
+        var markers = marker_index = [],
+        marker_count = marker_count_max = 0,
+        page = 0, page_size = 50,
+        firsttime = true;
+        //定义刷新检索操作，回调地图渲染方法
+        function updateData() {
+            var url = "http://api.map.baidu.com/geodata/v3/poi/list?callback=?";
+            //首次执行
+            $.ajax({url:url,
+                   headers: { 'Access-Control-Allow-Origin': '*' },
+                   crossDomain: true,
+                   data: {
+                   'geotable_id'     : 92292,
+                   'ak'              : 'AHlXvdQ2AcfSy3KAixNEOfOx',
+                   'page_index'      : page,
+                   'page_size'       : page_size,
+                   },
+                   success:function(json) {
+                       if (json.status != 0) return false; //失败
+                       if (json.pois == null) return false; //无数据
+                       
+                       markers = json.pois;
+                       marker_count = json.size;
+                       marker_count_max = json.total;
+
+                       //如果未取完数据，继续取数
+                       if(marker_count_max>marker_count) {
+                           var j=parseInt(marker_count_max/page_size);
+                           var h=marker_count_max/page_size;
+                           if(h-j==0) m=j-1; else m=j;
+                           for(var i=1;i<m+1;i++) {
+                           page = i;
+                           //非首次执行，继续取数据
+                           $.ajax({url:url,
+                                  headers: { 'Access-Control-Allow-Origin': '*' },
+                                  crossDomain: true,
+                                  data:{
+                                      'geotable_id'     : 92292,
+                                      'ak'              : 'AHlXvdQ2AcfSy3KAixNEOfOx',
+                                      'page_index'      : page,
+                                      'page_size'       : page_size,
+                                  },
+                                  success:function(json) {
+                                      if (json.status != 0) return false; //失败
+                                      marker_count = marker_count + json.size;
+                                      marker_count_max = json.total;
+                                      markers=markers.concat(json.pois);
+                                      if(markers.length==marker_count_max)
+                                            renderMap();
+                                  },
+                                  error: function() { alert('ajax error')},
+                                  dataType:'json',
+                                  async:false});
+                           }
+                       } else {
+                           renderMap();
+                       }
+                   },
+                   error: function() { alert('ajax error')},
+                   dataType: 'json',
+                   async:false});
+        }
+        
+        var msecPerMinute = 1000 * 60;
+        var msecPerHour = msecPerMinute * 60;
+        var msecPerDay = msecPerHour * 24;
+        
+        //添加 Marker 到地图上
+        function renderMap() {
+            // 创建图标对象
+            var okIcon = new BMap.Icon("images/ok.png", new BMap.Size(18, 18), {
+                                       // 指定定位位置。
+                                       offset: new BMap.Size(18, 18),
+                                       // 设置图片偏移。
+                                       imageOffset: new BMap.Size(0, 0)});
+           var missIcon = new BMap.Icon("images/miss.png", new BMap.Size(18, 18), {
+                                        offset: new BMap.Size(18, 18),
+                                        imageOffset: new BMap.Size(0, 0)});
+                                        
+            $.each(markers, function(i, item) {
+                   var point = new BMap.Point(item.location[0], item.location[1]);
+                   var date;
+                   if(typeof item.lasttime === 'undefined')
+                       date = Date.parse("2014/1/1 0:0:0");
+                   else
+                       date = Date.parse(item.lasttime.replace(/-/g,"/"));
+                   var now = new Date();
+                   var interval = now - date;
+                   days = Math.floor(interval / msecPerDay);
+                   
+                   // 创建标注对象并添加到索引数组和地图页面
+                   if(days >= 2) {
+                   var marker = new BMap.Marker(point, {icon: missIcon});
+                   marker_index.push(marker);//记录 Marker 到索引数组，方便清除
+                   map.addOverlay(marker);//加载 Marker 到地图上
+                   } else {
+                   var marker = new BMap.Marker(point, {icon: okIcon});
+                   marker_index.push(marker);//记录 Marker 到索引数组，方便清除
+                   map.addOverlay(marker);//加载 Marker 到地图上
+                   }
+                   //单击 Marker 事件绑定
+                   marker.addEventListener("click", function callback(e)
+                                           {
+                                           var content = '<p style="width:280px;margin:0;line-height:20px;">负责车辆：' + item.vehicle + '</p>';
+                                           content += '<p style="width:280px;margin:0;line-height:20px;">上次清运：' + item.lasttime + '</p>';
+                                           var opts={
+                                           width: 200,
+                                           height: 100,
+                                           title: item.title,
+                                           enableMessage: false};
+                                           var infoWindow = new BMap.InfoWindow(content,opts);
+                                           var point = new BMap.Point(item.location[0], item.location[1]);
+                                           map.openInfoWindow(infoWindow,point);
+                                           });
+                   });
+        }
+        
+        //清理所有 Marker
+        function clearMap() {
+            for(var m=0,l=markers.length;m<l;m++) {
+                map.removeOverlay(markers[m]);
+            }
+        }
+        
+        //获取数据并渲染地图
+        updateData();
+        //获取数据并生成车辆过滤列表
+		getHospitals();
+      </script>
+
+</body>
+
+</html>
