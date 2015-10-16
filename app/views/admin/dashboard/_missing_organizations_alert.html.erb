@@ -1,29 +1,49 @@
 <div>
+  <% a=[] %><% b=[] %><% c=[] %><% d=[] %><% big=[] %><% small=[] %><% all=[] %>
+  
+  <%# 筛选数据库中所有的车辆记录，取日期最近的一行记录 %>
   <% r1 = HistoryRecord.select("vehiclenum,yljgname,max(starttime) t").group("yljgid,yljgname,vehiclenum") %>
-  <% b=[] %>
+  
+  <%# 取定位历史数据库中所有医疗机构最近清运记录---d %>
+  <% r1.each do |x| %>
+    <% d << [x.yljgname,x.vehiclenum] %>
+  <% end %>
+  
+  <%# 筛选数据库中所有未按时清运的车辆记录 %>
+  <% r1 = HistoryRecord.find_by_sql("select vehiclenum,yljgname,t from (select vehiclenum,yljgname,max(starttime) t from historyrecord group by vehiclenum,yljgid,yljgname) z where z.t<'" + (Time.now-28800*6).to_s + "' order by vehiclenum") %>
+
+  <%# 取定位历史数据库中未按时清运的医疗机构---b %>
   <% r1.each do |x| %>
     <% b << [x.yljgname,x.vehiclenum] %>
   <% end %>
-  <% r1 = HistoryRecord.find_by_sql("select vehiclenum,yljgname,t from (select vehiclenum,yljgname,max(starttime) t from historyrecord group by vehiclenum,yljgid,yljgname) z where z.t<'" + (Time.now-28800*6).to_s + "' order by vehiclenum") %>
+  
+  <%# 取配置表中所有有坐标值的医疗机构记录，亦即由车载定位设备监控的任务医疗机构，这里实际上就是大车---a %>
   <% r_all=Organization.all %>
-  <% a=[] %><% c=[] %>
   <% r_all.each do |x| %>
-    <% a << [x.name,x.vehicle.name] %>
+    <% if !x.lat.nil? %>
+      <% a << [x.name,x.vehicle.name] %>
+    <% end %>
   <% end %>
-  <% c=a-b %>
-  <% big=[] %><% all=[] %>
+  
+  <%# 医疗机构配置表中有，而且坐标不为空，但定位历史数据库中没有任何记录的医疗机构---c %>
+  <% c=a-d %>
+  
+  <%# 取配置表中所有的车辆信息---all %>
+  <%# 取配置表中所有的*大车*信息---big; *小车*信息---small %>
   <% Vehicle.all.each do |x| %>
     <% all << x.name %>
     <% if x.vehicletype.name=="压缩式垃圾车" then %>
       <% big << x.name %>
+    <% else %>
+      <% small << x.name %>
     <% end %>
   <% end %>
 
-  <center><p class="alarm">目前共 <%= (c.count+r1.count).to_s %> 家医疗机构未按规定清运</p></center>
   <table id="missing_big">
     <thead>
-      <tr>【大车统计】</th>
-      <tr><th>机构名称</th><th>负责车辆</th><th>上次清运</th>
+      <tr><h3>当前共有 <font color=red><%=c.count+r1.count%></font> 个医疗机构未按时清运</h3></tr>
+      <tr><h3>【大车当前未按时清运记录】</h3></tr>
+      <tr><th>机构名称</th><th>负责车辆</th><th>上次清运</th></tr>
     </thead>
     <tbody id="group01_big">
     <% color1="#F0FFF0" %>
@@ -31,76 +51,34 @@
     <% color=color1 %>
     <% cv=nil%>
 
+    <%# 输出无记录医疗机构及负责车辆 %>
+    <% c.each do |x| %>
+      <tr bgcolor="yellow">
+        <td><%= x[0] %></td>
+        <td><%= x[1] %></td>
+        <td>无记录</td>
+      </tr>
+    <% end %>
+
     <% r1.each do |a| %>
       <% if big.include?a.vehiclenum then %>
-      <% if cv!=a.vehiclenum then %>
-        <% if color==color1 then color=color2 else color=color1 %> <% end %>
-        <% c.each do |x| %>
-          <% if x[1]==a.vehiclenum then %>
-          <tr bgcolor="<%=color%>">
-            <td><%= x[0] %></td>
-            <td><%= x[1] %></td>
-            <td>无记录</td>
-          </tr>
-          <%end%>
-        <% end %>
-      <% end %>
-      <tr bgcolor="<%=color%>">
-        <td><%= a.yljgname %></td>
-        <td><%= a.vehiclenum %></td>
-        <td><%= a.t %></td>
-      </tr>
-      <% cv=a.vehiclenum %>
+	      <% if cv!=a.vehiclenum then %>
+	        <% if color==color1 then color=color2 else color=color1 %><% end %>
+	      <% end %>
+	      <tr bgcolor="<%=color%>">
+	        <td><%= a.yljgname %></td>
+	        <td><%= a.vehiclenum %></td>
+	        <td><%= a.t %></td>
+	      </tr>
+	      <% cv=a.vehiclenum %>
       <% end %>
     <% end %>
+    
     </tbody>
   </table>
   <div>
     <a href="#" onclick="page01_big.firstPage();">首 页</a>/<a href="#" onclick="page01_big.nextPage();">下一页</a>/<a href="#" onclick="page01_big.prePage();">上一页</a>/<a href="#" onclick="page01_big.lastPage();">末 页</a><span id="divFood_big"></span>/第 
     <input id="pageno_big" value="1" style="width:20px"/>页/<a href="#" onclick="page01_big.aimPage();">跳转</a>
   </div> 
-  <script>var page01_big = new Page(8,'missing_big','group01_big','divFood_big','pageno_big')</script>
-
-
-  <br>
-  <table id="missing">
-    <thead>
-      <tr>【小车统计】</th>
-      <tr><th>机构名称</th><th>负责车辆</th><th>上次清运</th>
-    </thead>
-    <tbody id="group01">
-    <% color1="#F0FFF0" %>
-    <% color2="#FFECEC" %>
-    <% color=color1 %>
-    <% cv=nil%>
-
-    <% r1.each do |a| %>
-      <% unless big.include?a.vehiclenum then %>
-      <% if cv!=a.vehiclenum then %>
-        <% if color==color1 then color=color2 else color=color1 %> <% end %>
-        <% c.each do |x| %>
-          <% if x[1]==a.vehiclenum then %>
-          <tr bgcolor="<%=color%>">
-            <td><%= x[0] %></td>
-            <td><%= x[1] %></td>
-            <td>无记录</td>
-          </tr>
-          <%end%>
-        <% end %>
-      <% end %>
-      <tr bgcolor="<%=color%>">
-        <td><%= a.yljgname %></td>
-        <td><%= a.vehiclenum %></td>
-        <td><%= a.t %></td>
-      </tr>
-      <% cv=a.vehiclenum %>
-      <% end %>
-    <% end %>
-    </tbody>
-  </table>
-  <div>
-    <a href="#" onclick="page01.firstPage();">首 页</a>/<a href="#" onclick="page01.nextPage();">下一页</a>/<a href="#" onclick="page01.prePage();">上一页</a>/<a href="#" onclick="page01.lastPage();">末 页</a><span id="divFood"></span>/第 
-    <input id="pageno" value="1" style="width:20px"/>页/<a href="#" onclick="page01.aimPage();">跳转</a>
-  </div> 
-  <script>var page01 = new Page(8,'missing','group01','divFood','pageno')</script>
+  <script>var page01_big = new Page(16,'missing_big','group01_big','divFood_big','pageno_big')</script>
 </div>

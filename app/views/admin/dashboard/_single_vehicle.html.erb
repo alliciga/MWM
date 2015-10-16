@@ -9,7 +9,12 @@
 <% monthV = month %>
 <% end %>
 
+<% if monthV == 12 %>
+<% c1 = HistoryRecord.where(["starttime>? and endtime<? and endtime>starttime",Time.mktime(yearV,monthV)+28800,Time.mktime(yearV+1,1)+28800]) %>
+<% else %>
 <% c1 = HistoryRecord.where(["starttime>? and endtime<? and endtime>starttime",Time.mktime(yearV,monthV)+28800,Time.mktime(yearV,monthV.to_i+1)+28800]) %>
+<% end %>
+
 <% r1 = HistoryRecord.select("vehiclenum,yljgname,max(starttime) t").group("yljgid,yljgname,vehiclenum") %>
   <% b=[] %>
   <% r1.each do |x| %>
@@ -68,12 +73,17 @@
   </div> 
   <div class="message_body" id="analysis">
     <center><h3>未按规定时间清运医疗机构数量图表分析</h3></center>
+    <%#输出饼图，统计大车未按时清运数量%>
     <%= pie_chart data_alert %>
-    <center><h3><%=yearV%>年<%=monthV%>月医废清运工作量时间分析</h3></center>
+    <center><h3><%=yearV%>年<%=monthV%>大型车辆月医废清运时间量分析</h3></center>
     <%= bar_chart data_time %>
   </div>
   <% Vehicle.find_each do |v| %>
+    <% if monthV == 12 %>
+    <% record1 = HistoryRecord.find_by_sql("select yljgname,vehiclenum,starttime,endtime from historyrecord where vehiclenum='" + v.name + "' and endtime>starttime and starttime>'" + (Time.mktime(yearV,monthV)+28800).to_s + "' and endtime <'" + (Time.mktime(yearV+1,1)+28800).to_s + "' order by yljgname,starttime") %>
+    <% else %>
     <% record1 = HistoryRecord.find_by_sql("select yljgname,vehiclenum,starttime,endtime from historyrecord where vehiclenum='" + v.name + "' and endtime>starttime and starttime>'" + (Time.mktime(yearV,monthV)+28800).to_s + "' and endtime <'" + (Time.mktime(yearV,monthV.to_i+1)+28800).to_s + "' order by yljgname,starttime") %>
+    <% end %>
     <div class="message_body" id="<%=v.name%>">
       <center><h2><%=v.name%> <%=yearV%>年<%=monthV%>月清运详情表</h3></center>
       <h2><a href="#" class="message_head" name="<%=v.name%>">负责清运的医疗机构：</a></h2>
